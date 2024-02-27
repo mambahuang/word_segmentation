@@ -24,11 +24,15 @@ text = input("請輸入一句話: ")
 f = open("160000_ch_dictionary.txt", "r", encoding="utf-8-sig")
 chinese_words = f.read().split("\n")
 
-split_sentence = re.split(r'[。，!?\s]', text)
+split_sentence = re.split(r'[。，!?,.\s]', text)
 print(split_sentence)
 
 number_with_pos = find_numbers_with_positions(text)
 char_with_pos = find_english_characters_with_positions(text)
+
+# print(number_with_pos)
+# print(char_with_pos)
+# os.system("pause")
 
 # symbol
 sym = 0
@@ -41,9 +45,6 @@ for index in range(len(split_sentence)):
         sym += 1
         pos += 1
         continue
-    elif(re.match(r'[a-zA-Z]', split_sentence[index][0])):
-        print(split_sentence[index], end=" ")
-        pos += len(split_sentence[index])
     else:
         if(split_sentence[index] in chinese_words):
             pos += len(split_sentence[index])
@@ -52,13 +53,22 @@ for index in range(len(split_sentence)):
             i = len(split_sentence[index])
             while(split_sentence[index] != ""):
                 
+                if(re.match(r'[a-zA-Z]', split_sentence[index][0])):
+                    for char, start, end in char_with_pos:
+                        if(start == pos):
+                            print(char, end="")
+                            pos = pos + len(char)
+                            i = len(split_sentence[index])
+                            split_sentence[index] = text[end:end+i]
+                            char_with_pos.pop(0)
+
                 if(number_with_pos != []):
                     for number, start, end in number_with_pos:
                         if(start == pos):
                             print(number, end=" ")
                             pos = pos + len(number)
-                            split_sentence[index] = text[end:]
                             i = len(split_sentence[index])
+                            split_sentence[index] = text[end:end+i]
                             number_with_pos.pop(0)
                         break
 
