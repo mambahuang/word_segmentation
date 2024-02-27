@@ -1,5 +1,4 @@
 import re
-import os
 
 def find_numbers_with_positions(sentence):
     numbers_with_positions = []
@@ -24,69 +23,80 @@ text = input("請輸入一句話: ")
 f = open("160000_ch_dictionary.txt", "r", encoding="utf-8-sig")
 chinese_words = f.read().split("\n")
 
-split_sentence = re.split(r'[。，!?,.\s]', text)
+split_sentence = re.split(r'[。，!?~:",.@#$%^&*;{}()+=/|\'\s]', text)
 print(split_sentence)
 
 number_with_pos = find_numbers_with_positions(text)
 char_with_pos = find_english_characters_with_positions(text)
 
-# print(number_with_pos)
-# print(char_with_pos)
-# os.system("pause")
-
 # symbol
 sym = 0
 pos = 0
+ans = ""
+num_dig = 0
+num_char = 0
 for index in range(len(split_sentence)):
-    
     sym += len(split_sentence[index])
 
     if(split_sentence[index] == ""):
-        sym += 1
-        pos += 1
-        continue
+        pass
     else:
         if(split_sentence[index] in chinese_words):
             pos += len(split_sentence[index])
-            print(split_sentence[index], end=" ")
+            # print(split_sentence[index], end=" ")
+            ans = ans + split_sentence[index] + " "
         else:
             i = len(split_sentence[index])
-            while(split_sentence[index] != ""):
-                
-                if(re.match(r'[a-zA-Z]', split_sentence[index][0])):
-                    for char, start, end in char_with_pos:
-                        if(start == pos):
-                            print(char, end="")
-                            pos = pos + len(char)
-                            i = len(split_sentence[index])
-                            split_sentence[index] = text[end:end+i]
-                            char_with_pos.pop(0)
-
-                if(number_with_pos != []):
+            while(split_sentence[index] != ""):                    
+                if(number_with_pos != [] or char_with_pos != []):
                     for number, start, end in number_with_pos:
                         if(start == pos):
-                            print(number, end=" ")
+                            # print(number, end="")
+                            ans += number
                             pos = pos + len(number)
+                            split_sentence[index] = split_sentence[index][len(number):]
                             i = len(split_sentence[index])
-                            split_sentence[index] = text[end:end+i]
+                            num_dig += 1
                             number_with_pos.pop(0)
-                        break
+
+                    for char, start, end in char_with_pos:
+                        if(start == pos):
+                            # print(char, end="")
+                            ans += char
+                            pos = pos + len(char)
+                            split_sentence[index] = split_sentence[index][len(char):]
+                            i = len(split_sentence[index])
+                            num_char += 1
+                            char_with_pos.pop(0)
 
                 if(split_sentence[index][:i] in chinese_words):
-                    print(split_sentence[index][:i], end=" ")
+                    if(num_dig != 0 or num_char != 0):
+                        # print(" ", end="")
+                        ans += " "
+                    # print(split_sentence[index][:i], end=" ")
+                    ans = ans + split_sentence[index][:i] + " "
                     pos = pos + i
                     split_sentence[index] = split_sentence[index][i:]
-                    i = len(split_sentence[index])     
+                    i = len(split_sentence[index])
+                    num_dig = 0
+                    num_char = 0    
                 else:
                     i -= 1
 
     
     if(sym < len(text)):
         if(text[sym] == " "):
-            print(text[sym], end="")
+            # print(text[sym], end="")
+            ans += text[sym]
         else:
-            print(text[sym], end=" ")
+            # print(text[sym], end=" ")
+            ans = ans + text[sym] + " "
         sym += 1
         pos += 1
+
+ans_list = ans.split(" ")
+ans_list = [elem for elem in ans_list if elem != '']
+print(ans_list)
+# print(ans)
 
 f.close()
